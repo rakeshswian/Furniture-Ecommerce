@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout | DecorNest</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f1ec;
+            color: #33251e;
+        }
+
+        header {
+            background: #33251e;
+            color: white;
+            padding: 18px 25px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .product {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ddd;
+            padding: 12px 0;
+        }
+
+        .product:last-child {
+            border-bottom: none;
+        }
+
+        .total {
+            border-top: 2px solid #ddd;
+            margin-top: 15px;
+            padding-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .payment-option {
+            margin-top: 10px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 7px;
+        }
+
+        .payment-option input {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .place-btn {
+            width: 100%;
+            margin-top: 22px;
+            padding: 14px;
+            border: none;
+            border-radius: 7px;
+            background: #8b5e3c;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .place-btn:hover {
+            background: #70482e;
+        }
+
+        .success {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 40px 25px;
+            border-radius: 12px;
+        }
+
+        .success-icon {
+            font-size: 50px;
+        }
+
+        .success h1 {
+            color: #28743c;
+        }
+
+        .delivery {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f1ec;
+            border-radius: 8px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #33251e;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+        }
+
+        .empty {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+        }
+
+        @media(max-width:700px) {
+
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 10px auto;
+                padding: 12px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <a href="/">DecorNest</a>
+</header>
+
+<div class="container">
+
+    <div id="checkoutArea">
+
+        <h1>Checkout</h1>
+
+        <div class="checkout-grid">
+
+            <!-- Order Summary -->
+
+            <div class="box">
+
+                <h2>Order Summary</h2>
+
+                <div id="orderItems"></div>
+
+                <div class="total">
+                    <span>Total</span>
+                    <span id="orderTotal">$0.00</span>
+                </div>
+
+            </div>
+
+
+            <!-- Customer Details -->
+
+            <div class="box">
+
+                <h2>Customer Details</h2>
+
+                <form id="checkoutForm">
+
+                    <label>Full Name</label>
+
+                    <input
+                        type="text"
+                        id="customerName"
+                        placeholder="Enter your full name"
+                        required
+                    >
+
+
+                    <label>Email</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="example@gmail.com"
+                        required
+                    >
+
+
+                    <label>Delivery Address</label>
+
+                    <textarea
+                        id="address"
+                        placeholder="Enter complete delivery address"
+                        required
+                    ></textarea>
+
+
+                    <label>Payment Method</label>
+
+                    <div class="payment-option">
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="payment"
+                                value="Cash on Delivery"
+                                checked
+                            >
+                            Cash on Delivery
+                        </label>
+
+                    </div>
+
+                    <div class="payment-option">
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="payment"
+                                value="UPI"
+                            >
+                            UPI
+                        </label>
+
+                    </div>
+
+                    <div class="payment-option">
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="payment"
+                                value="Credit/Debit Card"
+                            >
+                            Credit/Debit Card
+                            <small>(Demo)</small>
+                        </label>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="place-btn"
+                    >
+                        Place Order
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Success -->
+
+    <div id="successBox" class="success">
+
+        <div class="success-icon">🎉</div>
+
+        <h1>Order Placed Successfully!</h1>
+
+        <p>
+            Thank you for shopping with DecorNest.
+        </p>
+
+        <h2>
+            Order ID:
+            <span id="successOrderId"></span>
+        </h2>
+
+        <div class="delivery">
+
+            <p>
+                <strong>Payment:</strong>
+                <span id="successPayment"></span>
+            </p>
+
+            <p>
+                <strong>Order Status:</strong>
+                Placed
+            </p>
+
+            <p>
+                <strong>Expected Delivery:</strong>
+                3–5 Business Days
+            </p>
+
+        </div>
+
+        <a href="/" class="back-btn">
+            Continue Shopping
+        </a>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+const orderItems = document.getElementById("orderItems");
+const orderTotal = document.getElementById("orderTotal");
+
+let total = 0;
+
+
+function displayCart() {
+
+    if (cart.length === 0) {
+
+        document.getElementById("checkoutArea").innerHTML = `
+            <div class="empty">
+                <h2>Your cart is empty.</h2>
+                <p>Please add some products before checkout.</p>
+                <a href="/" class="back-btn">
+                    Go Shopping
+                </a>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    orderItems.innerHTML = "";
+    total = 0;
+
+
+    cart.forEach(item => {
+
+        const subtotal = item.price * item.qty;
+
+        total += subtotal;
+
+        orderItems.innerHTML += `
+            <div class="product">
+
+                <div>
+                    <strong>${item.name}</strong>
+                    <br>
+                    <small>
+                        $${item.price.toFixed(2)} × ${item.qty}
+                    </small>
+                </div>
+
+                <strong>
+                    $${subtotal.toFixed(2)}
+                </strong>
+
+            </div>
+        `;
+
+    });
+
+
+    orderTotal.innerText =
+        "$" + total.toFixed(2);
+
+}
+
+
+document
+    .getElementById("checkoutForm")
+    .addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+
+        const customerName =
+            document.getElementById("customerName").value.trim();
+
+        const email =
+            document.getElementById("email").value.trim();
+
+        const address =
+            document.getElementById("address").value.trim();
+
+        const payment =
+            document.querySelector(
+                'input[name="payment"]:checked'
+            ).value;
+
+
+        if (!customerName || !email || !address) {
+
+            alert("Please fill all customer details.");
+
+            return;
+
+        }
+
+
+        fetch("/api/order", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                customer_name: customerName,
+
+                email: email,
+
+                address: address,
+
+                items: cart,
+
+                total: total
+
+            })
+
+        })
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            if (data.success) {
+
+                document.getElementById("checkoutArea")
+                    .style.display = "none";
+
+                document.getElementById("successBox")
+                    .style.display = "block";
+
+                document.getElementById("successOrderId")
+                    .innerText = "#" + data.order_id;
+
+                document.getElementById("successPayment")
+                    .innerText = payment;
+
+                localStorage.removeItem("cart");
+
+            } else {
+
+                alert(data.message);
+
+            }
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            alert(
+                "Unable to place order. Please try again."
+            );
+
+        });
+
+    });
+
+
+displayCart();
+
+</script>
+
+</body>
+</html>

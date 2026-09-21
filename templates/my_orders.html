@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>My Orders | DecorNest</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f5f1ec;
+    color:#33251e;
+}
+
+header{
+    background:#33251e;
+    color:white;
+    padding:18px 25px;
+}
+
+header a{
+    color:white;
+    text-decoration:none;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.container{
+    max-width:850px;
+    margin:30px auto;
+    padding:20px;
+}
+
+.box{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+h1{
+    margin-top:0;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+    margin-bottom:6px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:7px;
+    font-size:15px;
+}
+
+button{
+    width:100%;
+    margin-top:20px;
+    padding:13px;
+    border:none;
+    border-radius:7px;
+    background:#8b5e3c;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.order-card{
+    display:none;
+    margin-top:25px;
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.order-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+    border-bottom:1px solid #ddd;
+    padding-bottom:15px;
+}
+
+.status{
+    background:#e8f5e9;
+    color:#28743c;
+    padding:7px 12px;
+    border-radius:20px;
+    font-weight:bold;
+}
+
+.cancelled{
+    background:#ffebee;
+    color:#c62828;
+}
+
+.item{
+    display:flex;
+    justify-content:space-between;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+}
+
+.total{
+    text-align:right;
+    font-size:20px;
+    font-weight:bold;
+    margin-top:18px;
+}
+
+.message{
+    margin-top:15px;
+    color:#c62828;
+    font-weight:bold;
+}
+
+.back{
+    display:inline-block;
+    margin-top:20px;
+    padding:11px 18px;
+    background:#33251e;
+    color:white;
+    text-decoration:none;
+    border-radius:7px;
+}
+
+@media(max-width:600px){
+
+    .container{
+        margin:10px auto;
+        padding:12px;
+    }
+
+    .item{
+        gap:15px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <a href="/">DecorNest</a>
+</header>
+
+<div class="container">
+
+<div class="box">
+
+    <h1>📦 My Orders</h1>
+
+    <p>
+        Enter your Order ID and email address to track your order.
+    </p>
+
+    <label>Order ID</label>
+
+    <input
+        type="number"
+        id="orderId"
+        placeholder="Example: 1"
+    >
+
+    <label>Email Address</label>
+
+    <input
+        type="email"
+        id="email"
+        placeholder="example@gmail.com"
+    >
+
+    <button onclick="findOrder()">
+        Track Order
+    </button>
+
+    <div id="message" class="message"></div>
+
+</div>
+
+
+<div id="orderCard" class="order-card">
+
+    <div class="order-top">
+
+        <div>
+
+            <h2>
+                Order #<span id="displayId"></span>
+            </h2>
+
+            <p>
+                <strong>Customer:</strong>
+                <span id="customer"></span>
+            </p>
+
+            <p>
+                <strong>Date:</strong>
+                <span id="date"></span>
+            </p>
+
+        </div>
+
+        <div
+            id="status"
+            class="status"
+        >
+        </div>
+
+    </div>
+
+
+    <h3>Ordered Products</h3>
+
+    <div id="items"></div>
+
+
+    <div class="total">
+        Total:
+        $<span id="total"></span>
+    </div>
+
+
+    <a href="/" class="back">
+        Continue Shopping
+    </a>
+
+</div>
+
+</div>
+
+
+<script>
+
+function findOrder(){
+
+    const orderId =
+        document.getElementById("orderId").value.trim();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const message =
+        document.getElementById("message");
+
+    const card =
+        document.getElementById("orderCard");
+
+
+    message.innerText = "";
+    card.style.display = "none";
+
+
+    if(!orderId || !email){
+
+        message.innerText =
+            "Please enter Order ID and Email.";
+
+        return;
+    }
+
+
+    fetch("/api/my-orders",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+            order_id:orderId,
+            email:email
+        })
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        if(!data.success){
+
+            message.innerText = data.message;
+
+            return;
+        }
+
+
+        const order = data.order;
+        const items = data.items;
+
+
+        document.getElementById("displayId")
+            .innerText = order.id;
+
+        document.getElementById("customer")
+            .innerText = order.customer_name;
+
+        document.getElementById("date")
+            .innerText = order.order_date;
+
+        document.getElementById("total")
+            .innerText = Number(order.total).toFixed(2);
+
+
+        const status =
+            document.getElementById("status");
+
+        status.innerText = order.status;
+
+        status.className =
+            "status " +
+            (order.status === "Cancelled"
+                ? "cancelled"
+                : "");
+
+
+        const itemsBox =
+            document.getElementById("items");
+
+        itemsBox.innerHTML = "";
+
+
+        items.forEach(item => {
+
+            const subtotal =
+                Number(item.price) *
+                Number(item.quantity);
+
+            itemsBox.innerHTML += `
+
+                <div class="item">
+
+                    <div>
+                        <strong>
+                            ${item.product_name}
+                        </strong>
+
+                        <br>
+
+                        <small>
+                            $${Number(item.price).toFixed(2)}
+                            ×
+                            ${item.quantity}
+                        </small>
+                    </div>
+
+                    <strong>
+                        $${subtotal.toFixed(2)}
+                    </strong>
+
+                </div>
+
+            `;
+
+        });
+
+
+        card.style.display = "block";
+
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+        message.innerText =
+            "Something went wrong. Please try again.";
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>

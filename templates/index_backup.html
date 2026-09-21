@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DecorNest | Furniture & Home Decor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+    <h2>DecorNest</h2>
+
+    <nav>
+        <a href="/">Home</a>
+        <a href="#products">Products</a>
+        <a href="#" id="cart-badge" onclick="toggleDrawer(true)">Cart (0)</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <section class="hero">
+        <h1>Elevate Your Living Space</h1>
+        <p>Curated modern furniture and artisanal home decor.</p>
+    </section>
+
+    <section class="shop-tools">
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search furniture & decor..."
+            oninput="filterProducts()"
+        >
+
+        <select id="categoryFilter" onchange="filterProducts()">
+            <option value="all">All Categories</option>
+            <option value="Seating">Seating</option>
+            <option value="Decor">Decor</option>
+            <option value="Storage">Storage</option>
+            <option value="Lighting">Lighting</option>
+        </select>
+
+    </section>
+
+    <section id="products" class="product-grid">
+
+        {% for item in products %}
+
+        <article
+            class="card product-item"
+            data-name="{{ item.name|lower }}"
+            data-category="{{ item.category }}"
+        >
+
+            <img src="{{ item.image }}" alt="{{ item.name }}">
+
+            <div class="card-body">
+
+                <h3>{{ item.name }}</h3>
+
+                <p class="category">{{ item.category }}</p>
+
+                <p class="price">
+                    ${{ "%.2f"|format(item.price) }}
+                </p>
+
+                <button
+                    class="btn"
+                    onclick="addToCart({{ item.id }}, '{{ item.name }}', {{ item.price }})"
+                >
+                    Add to Cart
+                </button>
+
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+    </section>
+
+    <p id="noResults" class="no-results">
+        No products found.
+    </p>
+
+</main>
+
+<!-- Cart Drawer -->
+
+<div id="cart-drawer" class="cart-drawer">
+
+    <div class="drawer-header">
+        <h3>Your Shopping Cart</h3>
+
+        <button
+            class="close-btn"
+            onclick="toggleDrawer(false)"
+        >
+            ✕
+        </button>
+    </div>
+
+    <div id="cart-items" class="drawer-content"></div>
+
+    <div class="drawer-footer">
+
+        <div class="drawer-total">
+            <span>Total:</span>
+            <span id="cart-total">$0.00</span>
+        </div>
+
+        <button
+            class="checkout-btn"
+            onclick="checkout()"
+        >
+            Checkout
+        </button>
+
+    </div>
+
+</div>
+
+<footer>
+    <p>© 2026 DecorNest | Furniture & Home Decor</p>
+</footer>
+
+<script src="{{ url_for('static', filename='cart.js') }}"></script>
+
+<script>
+
+function filterProducts() {
+
+    const search =
+        document.getElementById("searchInput")
+        .value
+        .toLowerCase();
+
+    const category =
+        document.getElementById("categoryFilter")
+        .value;
+
+    const products =
+        document.querySelectorAll(".product-item");
+
+    let visible = 0;
+
+    products.forEach(product => {
+
+        const name =
+            product.dataset.name;
+
+        const productCategory =
+            product.dataset.category;
+
+        const matchesSearch =
+            name.includes(search);
+
+        const matchesCategory =
+            category === "all" ||
+            productCategory === category;
+
+        if (matchesSearch && matchesCategory) {
+
+            product.style.display = "";
+
+            visible++;
+
+        } else {
+
+            product.style.display = "none";
+
+        }
+
+    });
+
+    document.getElementById("noResults").style.display =
+        visible === 0 ? "block" : "none";
+}
+
+function checkout() {
+
+    if (cart.length === 0) {
+
+        alert("Your cart is empty.");
+
+        return;
+    }
+
+    alert("Checkout page coming next!");
+
+}
+
+</script>
+
+</body>
+</html>

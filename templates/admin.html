@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Admin Dashboard | DecorNest</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    margin:0;
+    background:#f5f1ec;
+    color:#33251e;
+}
+
+header{
+    background:#33251e;
+    color:white;
+    padding:20px;
+}
+
+header h1{
+    margin:0;
+}
+
+.container{
+    padding:25px;
+    overflow-x:auto;
+}
+
+.order-card{
+    background:white;
+    margin-bottom:25px;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.order-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+    border-bottom:1px solid #ddd;
+    padding-bottom:15px;
+}
+
+.order-info p{
+    margin:6px 0;
+}
+
+.status{
+    padding:7px 12px;
+    border-radius:20px;
+    font-weight:bold;
+    background:#e8f5e9;
+    color:#28743c;
+}
+
+.status.cancelled{
+    background:#ffebee;
+    color:#c62828;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:18px;
+    background:white;
+}
+
+th,td{
+    padding:12px;
+    border:1px solid #ddd;
+    text-align:left;
+}
+
+th{
+    background:#8b5e3c;
+    color:white;
+}
+
+.total{
+    text-align:right;
+    font-size:18px;
+    font-weight:bold;
+    margin-top:15px;
+}
+
+.cancel-btn{
+    background:#c62828;
+    color:white;
+    border:none;
+    padding:9px 14px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.cancel-btn:disabled{
+    background:#aaa;
+    cursor:not-allowed;
+}
+
+.no-orders{
+    background:white;
+    padding:25px;
+    border-radius:10px;
+}
+
+@media(max-width:600px){
+
+    .container{
+        padding:12px;
+    }
+
+    .order-card{
+        padding:14px;
+    }
+
+    th,td{
+        padding:8px;
+        font-size:13px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>DecorNest Admin Dashboard</h1>
+</header>
+
+<div class="container">
+
+<h2>Customer Orders</h2>
+
+{% if orders %}
+
+{% for order in orders %}
+
+<div class="order-card">
+
+    <div class="order-header">
+
+        <div class="order-info">
+
+            <h3>Order #{{ order.id }}</h3>
+
+            <p><strong>Customer:</strong>
+                {{ order.customer_name }}
+            </p>
+
+            <p><strong>Email:</strong>
+                {{ order.email }}
+            </p>
+
+            <p><strong>Address:</strong>
+                {{ order.address }}
+            </p>
+
+            <p><strong>Date:</strong>
+                {{ order.order_date }}
+            </p>
+
+        </div>
+
+        <div>
+
+            <span class="status {% if order.status == 'Cancelled' %}cancelled{% endif %}">
+                {{ order.status }}
+            </span>
+
+            <br><br>
+
+            <button
+                class="cancel-btn"
+                onclick="cancelOrder({{ order.id }})"
+                {% if order.status == 'Cancelled' %}disabled{% endif %}
+            >
+                Cancel Order
+            </button>
+
+        </div>
+
+    </div>
+
+    <h3>Ordered Products</h3>
+
+    <table>
+
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+        </tr>
+
+        {% for item in order_items[order.id] %}
+
+        <tr>
+
+            <td>{{ item.product_name }}</td>
+
+            <td>
+                ${{ "%.2f"|format(item.price) }}
+            </td>
+
+            <td>
+                {{ item.quantity }}
+            </td>
+
+            <td>
+                ${{ "%.2f"|format(item.price * item.quantity) }}
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <div class="total">
+        Order Total:
+        ${{ "%.2f"|format(order.total) }}
+    </div>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<div class="no-orders">
+    <p>No orders yet.</p>
+</div>
+
+{% endif %}
+
+</div>
+
+<script>
+
+function cancelOrder(orderId){
+
+    const confirmCancel =
+        confirm(
+            "Are you sure you want to cancel Order #" +
+            orderId +
+            "?"
+        );
+
+    if(!confirmCancel){
+        return;
+    }
+
+    fetch(`/api/order/${orderId}/cancel`, {
+        method: "POST"
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        alert(data.message);
+
+        if(data.success){
+            location.reload();
+        }
+
+    })
+    .catch(error => {
+
+        alert("Something went wrong.");
+
+        console.error(error);
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
